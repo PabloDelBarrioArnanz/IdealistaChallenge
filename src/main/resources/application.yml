@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: coding-test-ranking
+server:
+  port: 8082
