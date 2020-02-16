@@ -2,17 +2,18 @@ package com.idealista.infrastructure.api;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class QualityAd {
 
-    private Integer id;
-    private String typology;
-    private String description;
-    private List<String> pictureUrls;
-    private Integer houseSize;
-    private Integer gardenSize;
-    private Integer score;
-    private Date irrelevantSince;
+  private Integer id;
+  private String typology;
+  private String description;
+  private List<String> pictureUrls;
+  private Integer houseSize;
+  private Integer gardenSize;
+  private Integer score;
+  private Date irrelevantSince;
 
   public QualityAd(Integer id, String typology, String description, List<String> pictureUrls, Integer houseSize, Integer gardenSize, Integer score, Date irrelevantSince) {
     this.id = id;
@@ -26,130 +27,156 @@ public class QualityAd {
   }
 
   public Integer getId() {
-        return id;
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getTypology() {
+    return typology;
+  }
+
+  public void setTypology(String typology) {
+    this.typology = typology;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public List<String> getPictureUrls() {
+    return pictureUrls;
+  }
+
+  public void setPictureUrls(List<String> pictureUrls) {
+    this.pictureUrls = pictureUrls;
+  }
+
+  public Integer getHouseSize() {
+    return houseSize;
+  }
+
+  public void setHouseSize(Integer houseSize) {
+    this.houseSize = houseSize;
+  }
+
+  public Integer getGardenSize() {
+    return gardenSize;
+  }
+
+  public void setGardenSize(Integer gardenSize) {
+    this.gardenSize = gardenSize;
+  }
+
+  public Integer getScore() {
+    return score;
+  }
+
+  public void setScore(Integer score) {
+    this.score = score;
+  }
+
+  public Date getIrrelevantSince() {
+    return irrelevantSince;
+  }
+
+  public void setIrrelevantSince(Date irrelevantSince) {
+    this.irrelevantSince = irrelevantSince;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    QualityAd qualityAd = (QualityAd) o;
+    return Objects.equals(id, qualityAd.id) &&
+      Objects.equals(typology, qualityAd.typology) &&
+      Objects.equals(description, qualityAd.description) &&
+      Objects.equals(pictureUrls, qualityAd.pictureUrls) &&
+      Objects.equals(houseSize, qualityAd.houseSize) &&
+      Objects.equals(gardenSize, qualityAd.gardenSize) &&
+      Objects.equals(score, qualityAd.score) &&
+      Objects.equals(irrelevantSince, qualityAd.irrelevantSince);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, typology, description, pictureUrls, houseSize, gardenSize, score, irrelevantSince);
+  }
+
+  @Override
+  public String toString() {
+    return "QualityAd{" +
+      "id=" + id +
+      ", typology='" + typology + '\'' +
+      ", description='" + description + '\'' +
+      ", pictureUrls=" + pictureUrls +
+      ", houseSize=" + houseSize +
+      ", gardenSize=" + gardenSize +
+      ", score=" + score +
+      ", irrelevantSince=" + irrelevantSince +
+      '}';
+  }
+
+  public static class QualityAdBuilder {
+
+    private Integer id;
+    private String typology;
+    private String description;
+    private List<String> pictureUrls;
+    private Integer houseSize;
+    private Integer gardenSize;
+    private Integer score;
+    private Date irrelevantSince;
+
+    public QualityAdBuilder setId(Integer id) {
+      this.id = id;
+      return this;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public QualityAdBuilder setTypology(String typology) {
+      this.typology = typology;
+      return this;
     }
 
-    public String getTypology() {
-        return typology;
+    public QualityAdBuilder setDescription(String description) {
+      this.description = description;
+      return this;
     }
 
-    public void setTypology(String typology) {
-        this.typology = typology;
+    public QualityAdBuilder setPictureUrls(List<String> pictureUrls) {
+      this.pictureUrls = pictureUrls;
+      return this;
     }
 
-    public String getDescription() {
-        return description;
+    public QualityAdBuilder setHouseSize(Integer houseSize) {
+      this.houseSize = houseSize;
+      return this;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public QualityAdBuilder setGardenSize(Integer gardenSize) {
+      this.gardenSize = gardenSize;
+      return this;
     }
 
-    public List<String> getPictureUrls() {
-        return pictureUrls;
+    public QualityAdBuilder setScore(Integer score) {
+      this.score = score;
+      return this;
     }
 
-    public void setPictureUrls(List<String> pictureUrls) {
-        this.pictureUrls = pictureUrls;
+    public QualityAdBuilder setIrrelevantSince(Date irrelevantSince) {
+      this.irrelevantSince = irrelevantSince;
+      return this;
     }
 
-    public Integer getHouseSize() {
-        return houseSize;
+    public QualityAd build() {
+      return new QualityAd(id, typology, description, pictureUrls, houseSize, gardenSize, score, irrelevantSince);
     }
-
-    public void setHouseSize(Integer houseSize) {
-        this.houseSize = houseSize;
-    }
-
-    public Integer getGardenSize() {
-        return gardenSize;
-    }
-
-    public void setGardenSize(Integer gardenSize) {
-        this.gardenSize = gardenSize;
-    }
-
-    public Integer getScore() {
-        return score;
-    }
-
-    public void setScore(Integer score) {
-        this.score = score;
-    }
-
-    public Date getIrrelevantSince() {
-        return irrelevantSince;
-    }
-
-    public void setIrrelevantSince(Date irrelevantSince) {
-        this.irrelevantSince = irrelevantSince;
-    }
-
-    public boolean isRelevant() {
-      return score > 40;
-    }
-
-    public boolean isIIrrelevant() {
-      return !isRelevant();
-    }
-
-    public static class QualityAdBuilder {
-
-      private Integer id;
-      private String typology;
-      private String description;
-      private List<String> pictureUrls;
-      private Integer houseSize;
-      private Integer gardenSize;
-      private Integer score;
-      private Date irrelevantSince;
-
-      public QualityAdBuilder setId(Integer id) {
-        this.id = id;
-        return this;
-      }
-
-      public QualityAdBuilder setTypology(String typology) {
-        this.typology = typology;
-        return this;
-      }
-
-      public QualityAdBuilder setDescription(String description) {
-        this.description = description;
-        return this;
-      }
-
-      public QualityAdBuilder setPictureUrls(List<String> pictureUrls) {
-        this.pictureUrls = pictureUrls;
-        return this;
-      }
-
-      public QualityAdBuilder setHouseSize(Integer houseSize) {
-        this.houseSize = houseSize;
-        return this;
-      }
-
-      public QualityAdBuilder setGardenSize(Integer gardenSize) {
-        this.gardenSize = gardenSize;
-        return this;
-      }
-
-      public QualityAdBuilder setScore(Integer score) {
-        this.score = score;
-        return this;
-      }
-
-      public QualityAdBuilder setIrrelevantSince(Date irrelevantSince) {
-        this.irrelevantSince = irrelevantSince;
-        return this;
-      }
-
-      public QualityAd build() {
-        return new QualityAd(id, typology, description, pictureUrls, houseSize, gardenSize, score, irrelevantSince);
-      }
-    }
+  }
 }

@@ -9,7 +9,7 @@ public class BusinessConstants {
   public static String FLAT = "FLAT";
   public static String GARAGE = "GARAGE";
   public static String CHALET = "CHALET";
-  public static List<String> keyWords = Arrays.asList("Luminoso", "Nuevo", "Céntrico", "Reformado", "Ático");
+  public static List<String> keyWords = Arrays.asList("LUMINOSO", "NUEVO", "CENTRICO", "CENTRICO", "REFORMADO", "ÁTICO", "ATICO", "CÉNTRICO");
   public static Integer completeAdScore = 40;
   public static Integer descriptionAdScore = 5;
   public static Integer medDescriptionAdScore = 10;
@@ -20,5 +20,4 @@ public class BusinessConstants {
   public static Integer noPicturesScore = -10;
   public static Integer keyWordsScore = 5;
   public static Integer ZeroScore = 0;
-
 }

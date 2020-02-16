@@ -35,19 +35,11 @@ public class InMemoryPersistence {
     pictures.add(new PictureVO(8, "http://www.idealista.com/pictures/8", "HD"));
   }
 
-  //TODO crea los métodos que necesites
   public List<AdVO> getAds() {
     return ads;
   }
 
   public List<PictureVO> getPictures() {
     return pictures;
-  }
-
-  public PictureVO getById(Integer id) {
-    return pictures.stream()
-      .filter(pictureVO -> pictureVO.getId().equals(id))
-      .findFirst()
-      .orElseThrow(() -> new RuntimeException("Integrity error"));
   }
 }

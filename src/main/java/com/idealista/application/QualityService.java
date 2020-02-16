@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.idealista.application.BusinessConstants.*;
-import static com.idealista.application.BusinessPredicates.hasKeyWords;
-import static com.idealista.application.BusinessPredicates.isHD;
+import static com.idealista.application.BusinessPredicates.*;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 @Service
 public class QualityService {
@@ -21,41 +25,67 @@ public class QualityService {
   private InMemoryPersistence persistence;
   private Mapper mapper;
   private List<QualityAd> qualityAds;
+  private Executor executor;
 
   @Autowired
   public QualityService(InMemoryPersistence persistence, Mapper mapper) {
     this.persistence = persistence;
     this.mapper = mapper;
     this.qualityAds = Collections.emptyList();
+    this.executor = Executors.newFixedThreadPool(14);
   }
 
-
   public List<QualityAd> getQualityListing() {
-    return qualityAds
-      .parallelStream()
-      .collect(Collectors.toList());
+    return Optional.of(qualityAds)
+      .filter(List::isEmpty)
+      .map(list -> calculateScore())
+      .orElse(qualityAds);
   }
 
   public List<PublicAd> getPublicListing() {
-    return qualityAds
+    return Optional.of(qualityAds)
+      .filter(List::isEmpty)
+      .map(list -> calculateScore())
+      .orElse(qualityAds)
       .stream()
-      .filter(QualityAd::isRelevant)
+      .filter(isRelevant)
       .map(mapper::toPublicAd)
       .collect(Collectors.toList());
   }
 
-  public void calculateScore() {
+  public List<QualityAd> calculateScore() {
     qualityAds = persistence.getAds()
-      .stream()
+      .parallelStream()
       .map(ad -> calculateScore(ad, persistence.getPictures()))
-      .sorted(Comparator.comparingInt(QualityAd::getScore).reversed())
+      .sorted(Comparator.comparingInt(QualityAd::getScore)
+        .reversed())
       .collect(Collectors.toList());
+    return qualityAds;
   }
 
   private QualityAd calculateScore(AdVO ad, List<PictureVO> pictures) {
     QualityAd qualityAd = mapper.toQualityAd(ad);
     qualityAd.setPictureUrls(getURLOfPictures(ad.getPictures(), pictures));
-    Optional.of(ad)
+
+    //PARALLEL
+    CompletableFuture<Integer> picturesScore = supplyAsync(() -> calculatePicturesScore(ad, pictures), executor);
+    CompletableFuture<Integer> descriptionScore = supplyAsync(() -> calculateDescriptionScore(qualityAd), executor);
+    CompletableFuture<Integer> completeScore = supplyAsync(() -> calculateComplete(qualityAd), executor);
+    CompletableFuture<Integer> keyWordsScore = supplyAsync(() -> containsKeyWords(qualityAd), executor);
+
+    Stream.of(picturesScore, descriptionScore, completeScore, keyWordsScore)
+      .map(CompletableFuture::join)
+      .mapToInt(Integer::intValue)
+      .reduce(Integer::sum)
+      .ifPresent(finalScore -> {
+        qualityAd.setScore(finalScore);
+        Optional.of(qualityAd)
+          .filter(isIrrelevant)
+          .ifPresent(givenAd -> givenAd.setIrrelevantSince(new Date()));
+      });
+
+    //SEQUENTIAL
+    /*Optional.of(ad)
       .map(giveAd -> calculatePicturesScore(giveAd, pictures))
       .map(score -> sumScore(qualityAd, score))
       .map(this::calculateDescriptionScore)
@@ -64,8 +94,8 @@ public class QualityService {
       .map(score -> sumScore(qualityAd, score))
       .map(this::containsKeyWords)
       .map(score -> sumScore(qualityAd, score))
-      .filter(QualityAd::isIIrrelevant)
-      .ifPresent(givenAd -> givenAd.setIrrelevantSince(new Date()));
+      .filter(isIrrelevant)
+      .ifPresent(givenAd -> givenAd.setIrrelevantSince(new Date()));*/
 
     return qualityAd;
   }
@@ -87,24 +117,23 @@ public class QualityService {
   }
 
   private Integer calculateDescriptionScore(QualityAd ad) {
-    return ConditionsDescription.getScoreForDescription(ad);
+    return DescriptionConditions.getScoreForDescription(ad);
   }
 
   private Integer containsKeyWords(QualityAd ad) {
     return Optional.of(ad)
-      .map(QualityAd::getDescription)
-      .filter(hasKeyWords)
+      .filter(hasDescription.and(hasKeyWords))
       .map(score -> keyWordsScore)
       .orElse(ZeroScore);
   }
 
   private Integer calculateComplete(QualityAd ad) {
-    return ConditionsComplete.getScoreForComplete(ad);
+    return CompleteConditions.getScoreForComplete(ad);
   }
 
   private List<PictureVO> getPictures(List<Integer> pictures, List<PictureVO> picturesVo) {
     return pictures.stream()
-      .map(persistence::getById)
+      .map(this::getById)
       .collect(Collectors.toList());
   }
 
@@ -122,9 +151,16 @@ public class QualityService {
       .collect(Collectors.toList());
   }
 
+  public PictureVO getById(Integer id) {
+    return persistence.getPictures()
+      .stream()
+      .filter(pictureVO -> pictureVO.getId().equals(id))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Integrity error"));
+  }
+
   private QualityAd sumScore(QualityAd ad, Integer score) {
     ad.setScore(ad.getScore() + score);
     return ad;
   }
-
 }

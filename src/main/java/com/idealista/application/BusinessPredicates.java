@@ -1,14 +1,11 @@
 package com.idealista.application;
 
 import com.idealista.infrastructure.api.QualityAd;
-import com.idealista.infrastructure.persistence.AdVO;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 import static com.idealista.application.BusinessConstants.*;
 
@@ -27,34 +24,30 @@ public class BusinessPredicates {
   public static Predicate<QualityAd> hasURLPictures = given -> !Objects.isNull(given.getPictureUrls()) && !given.getPictureUrls().isEmpty();
   public static Predicate<String> isHD = given -> given.equals(HD);
 
+  public static Predicate<QualityAd> isRelevant = given -> given.getScore() > 40;
+  public static Predicate<QualityAd> isIrrelevant = isRelevant.negate();
 
   public static Predicate<QualityAd> hasHouseSize = given ->
     Optional.ofNullable(given.getHouseSize())
       .filter(size -> size > 0)
-      .map(g -> Boolean.TRUE)
+      .map(result -> Boolean.TRUE)
       .orElse(Boolean.FALSE);
 
   public static Predicate<QualityAd> hasGardenSize = given ->
     Optional.ofNullable(given.getGardenSize())
       .filter(size -> size > 0)
-      .map(g -> Boolean.TRUE)
+      .map(result -> Boolean.TRUE)
       .orElse(Boolean.FALSE);
 
-  public static Predicate<String> hasKeyWords = given ->
-    Arrays.stream(given.split(" "))
-      .distinct()
-      .map(keyWords::contains)
-      .count() > 0;
-
-  public static Predicate<? super String> not(Predicate<? super String> o) {
-    return o.negate();
-  }
-
-  public <T> UnaryOperator<T> peek(Consumer<T> c) {
-    return x -> {
-      c.accept(x);
-      return x;
-    };
-  }
-
+  public static Predicate<QualityAd> hasKeyWords = given ->
+    Optional.of(given)
+      .map(QualityAd::getDescription)
+      .map(description -> Arrays.stream(description.split(" "))
+        .distinct()
+        .map(String::toUpperCase)
+        .filter(keyWords::contains)
+        .findFirst()
+        .map(result -> Boolean.TRUE)
+        .orElse(Boolean.FALSE))
+      .orElse(Boolean.FALSE);
 }
